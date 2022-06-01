@@ -1,0 +1,41 @@
+Usando hadoop dentro do docker container namenode
+## Partition
+docker exec -it namenome hdfs dfs -ls
+docker exec -it namenome hdfs dfs -mkdir /user/aluno/jairo/data/nascimento
+docker exec -it namenome hdfs dfs -ls /user/aluno/jairo/data/nascimento
+docker exec -it hive-server bash
+	beeline -u jdbc:hive2://localhost:1000
+		show databases;
+		use default;
+		show tables;
+		
+		create external table nascimento ( 
+		nome string,
+		sexo string,
+		frequencia int )
+		partition by (ano int);
+		row format delimited 
+		fields terminated by ',',
+		lines terminated by '\n'
+		stored as parquet tblproperties('parquet.compress'='snappy')
+		location 'hdfs://namenode:8020/user/aluno/jairo/data/nascimento';
+		
+		alter table nascimento add partition (ano=2015);
+		
+hdfs dfs -ls /user
+docker exec -it namenome hdfs dfs -mkdir /user/aluno/jairo/data/nascimento
+docker exec -it namenome bash
+hdfs dfs -put /input/exercises-data/names/yob2015.txt
+docker exec -it hive-server bash
+	beeline -u jdbc:hive2://localhost:1000
+		select * from jairo.nascimento limit 10;
+		alter table nascimento add partition (ano=2106);
+		alter table nascimento add partition (ano=2107);
+hdfs dfs -put /input/exercises-data/names/yob2016.txt /user/aluno/jairo/data/nascimento/ano=2016
+hdfs dfs -put /input/exercises-data/names/yob2017.txt /user/aluno/jairo/data/nascimento/ano=2017	
+docker exec -it hive-server bash
+	beeline -u jdbc:hive2://localhost:1000
+		select * from jairo.nascimento where ano=2016 limit 12;
+		
+		
+consultas no hive 
